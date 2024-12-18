@@ -1,0 +1,49 @@
+deployment:
+  enabled: true
+  replicas: 1
+  labels:
+    app: my-test-app-2
+
+  containers:
+    - name: app-container
+      image:
+        repository: nginx
+        tag: latest
+        pullPolicy: IfNotPresent
+      ports:
+        containerPort: 80
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
+        requests:
+          cpu: "250m"
+          memory: "256Mi"
+      livenessProbe:
+        enabled: true
+        httpGet:
+          path: /
+          port: 80
+        initialDelaySeconds: 5
+        periodSeconds: 10
+      readinessProbe:
+        enabled: true
+        httpGet:
+          path: /
+          port: 80
+        initialDelaySeconds: 5
+        periodSeconds: 10
+
+service:
+  type: ClusterIP
+  port: 80
+  labels:
+    app: my-test-app-2
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: example.com
+  path: /
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
